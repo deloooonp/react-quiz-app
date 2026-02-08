@@ -57,7 +57,9 @@ export default function Quiz() {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
-      console.log("Quiz finished", answers);
+      navigate("/result", {
+        state: { questions, answers },
+      });
     }
   }
 
