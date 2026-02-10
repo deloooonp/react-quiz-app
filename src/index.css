@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #137fec;
+  --color-secondary: #617589;
+  --color-accent: #f8f9fa;
+
+  --color-background: #f6f7f8;
+  --color-surface: #ffffff;
+  --color-border: #e6e8eb;
+
+  --font-display: "Lexend", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-[#111418] font-display transition-colors duration-200;
+  }
+}
