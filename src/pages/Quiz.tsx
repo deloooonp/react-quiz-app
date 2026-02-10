@@ -16,15 +16,47 @@ export default function Quiz() {
   const currentQuestion = questions[currentIndex];
   const hasFetched = useRef(false);
   const navigate = useNavigate();
+  const hasResumed = useRef(false);
 
   const TOTAL_TIME = 60;
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME);
 
+  // Load dari Local Storage
   useEffect(() => {
+    const saved = localStorage.getItem("quiz-progress");
+
+    if (!saved) return;
+
+    const parsed = JSON.parse(saved);
+
+    setQuestions(parsed.questions);
+    setAnswers(parsed.answers);
+    setCurrentIndex(parsed.currentIndex);
+    setTimeLeft(parsed.timeLeft);
+
+    hasResumed.current = true;
+
+    setLoading(false);
+  }, []);
+
+  // Save ke Local Storage
+  useEffect(() => {
+    if (!questions.length) return;
+    const data = {
+      questions,
+      answers,
+      currentIndex,
+      timeLeft,
+    };
+
+    localStorage.setItem("quiz-progress", JSON.stringify(data));
+  }, [questions, answers, currentIndex, timeLeft]);
+
+  // Quiz Timer
+  useEffect(() => {
+    if (!questions.length) return;
     if (timeLeft <= 0) {
-      navigate("/result", {
-        state: { questions, answers },
-      });
+      finishQuiz();
       return;
     }
 
@@ -33,8 +65,9 @@ export default function Quiz() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timeLeft, navigate, questions, answers]);
+  }, [timeLeft, questions.length]);
 
+  // Route Guard
   useEffect(() => {
     const username = localStorage.getItem("username");
 
@@ -43,10 +76,17 @@ export default function Quiz() {
     }
   }, [navigate]);
 
+  // Fetch Data Quiz
   useEffect(() => {
     // Mencegah error 429 (Too Many Requests)
     if (hasFetched.current) return;
     hasFetched.current = true;
+
+    // Kalo udah ada quiz di local storage, jangan fetch lagi
+    if (hasResumed.current) {
+      setLoading(false);
+      return;
+    }
 
     const loadQuiz = async () => {
       try {
@@ -62,6 +102,13 @@ export default function Quiz() {
     loadQuiz();
   }, []);
 
+  function finishQuiz() {
+    localStorage.removeItem("quiz-progress");
+    navigate("/result", {
+      state: { questions, answers },
+    });
+  }
+
   function handleSelect(optionId: string) {
     if (!currentQuestion) return;
 
@@ -75,9 +122,7 @@ export default function Quiz() {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
-      navigate("/result", {
-        state: { questions, answers },
-      });
+      finishQuiz();
     }
   }
 
