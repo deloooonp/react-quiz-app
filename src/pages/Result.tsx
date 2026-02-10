@@ -1,6 +1,13 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { Trophy, CheckCircle2, XCircle, RefreshCcw, Home } from "lucide-react";
+import {
+  Trophy,
+  CheckCircle2,
+  XCircle,
+  RefreshCcw,
+  Home,
+  HelpCircle,
+} from "lucide-react";
 
 import type { QuizQuestion } from "@/types/quiz";
 import { Header, Button } from "@/components/ui";
@@ -36,6 +43,7 @@ export default function Result() {
 
   const answered = Object.keys(answers).length;
   const wrong = answered - score;
+  const unanswered = questions.length - answered;
   const percentage = Math.round((score / questions.length) * 100);
 
   const statCards = [
@@ -81,7 +89,7 @@ export default function Result() {
 
           <ScoreCircle percentage={percentage} />
 
-          <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             {statCards.map((stat, i) => (
               <div
                 key={i}
@@ -101,6 +109,16 @@ export default function Result() {
               </div>
             ))}
           </div>
+
+          {unanswered > 0 && (
+            <div className="w-full flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg mb-10">
+              <HelpCircle className="size-5 text-orange-600" />
+              <p className="text-sm font-medium text-orange-700">
+                You skipped {unanswered} question{unanswered > 1 ? "s" : ""}.
+                Try to answer all of them next time!
+              </p>
+            </div>
+          )}
 
           <div className="flex w-full flex-col sm:flex-row gap-4 h-28 md:h-auto">
             <Button
