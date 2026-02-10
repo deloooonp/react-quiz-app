@@ -1,12 +1,4 @@
-import type { QuizQuestion } from "@/types";
-
-interface QuizStats {
-  total: number;
-  correct: number;
-  incorrect: number;
-  unanswered: number;
-  percentage: number;
-}
+import type { QuizQuestion, QuizStats } from "@/types";
 
 export function calculateQuizStats(
   questions: QuizQuestion[],
