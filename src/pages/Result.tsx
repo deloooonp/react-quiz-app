@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { Trophy, RefreshCcw, Home } from "lucide-react";
-import { calculateQuizStats, getStatCardConfigs } from "@/lib/stats";
+import { Trophy, CheckCircle2, XCircle, RefreshCcw, Home } from "lucide-react";
+import { calculateQuizStats } from "@/lib/stats";
 
 import type { ResultState } from "@/types";
 import { Header, Button, StatCard } from "@/components/ui";
@@ -22,7 +22,26 @@ export default function Result() {
 
   const { questions, answers } = state;
   const stats = calculateQuizStats(questions, answers);
-  const cardConfigs = getStatCardConfigs(stats);
+
+  const configs = [
+    {
+      label: "Total Questions",
+      value: stats.total,
+      variant: "default" as const,
+    },
+    {
+      label: "Correct",
+      value: stats.correct,
+      variant: "success" as const,
+      icon: <CheckCircle2 className="size-4" />,
+    },
+    {
+      label: "Incorrect",
+      value: stats.incorrect,
+      variant: "error" as const,
+      icon: <XCircle className="size-4" />,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background font-display flex flex-col overflow-hidden">
@@ -45,7 +64,7 @@ export default function Result() {
           <ScoreCircle percentage={stats.percentage} />
 
           <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            {cardConfigs.map((config, i) => (
+            {configs.map((config, i) => (
               <StatCard key={i} {...config} />
             ))}
           </div>
