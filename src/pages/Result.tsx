@@ -1,4 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+
 import type { QuizQuestion } from "@/types/quiz";
 
 type ResultState = {
@@ -11,10 +13,13 @@ export default function Result() {
   const location = useLocation();
   const state = location.state as ResultState | null;
 
-  if (!state) {
-    navigate("/");
-    return null;
-  }
+  useEffect(() => {
+    if (!state) {
+      navigate("/");
+    }
+  }, [state, navigate]);
+
+  if (!state) return null;
 
   const { questions, answers } = state;
 
@@ -33,6 +38,16 @@ export default function Result() {
       <p>
         Score: {score} / {questions.length}
       </p>
+      <button onClick={() => navigate("/")}>Back to Home</button>
+      <br />
+      <button
+        onClick={() => {
+          localStorage.removeItem("username");
+          navigate("/");
+        }}
+      >
+        Logout
+      </button>
     </div>
   );
 }
