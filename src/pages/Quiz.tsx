@@ -17,6 +17,24 @@ export default function Quiz() {
   const hasFetched = useRef(false);
   const navigate = useNavigate();
 
+  const TOTAL_TIME = 60;
+  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      navigate("/result", {
+        state: { questions, answers },
+      });
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timeLeft, navigate, questions, answers]);
+
   useEffect(() => {
     const username = localStorage.getItem("username");
 
@@ -74,6 +92,8 @@ export default function Quiz() {
       </p>
 
       <h2>{currentQuestion.question}</h2>
+
+      <p>Time left: {timeLeft}s</p>
 
       <ul>
         {currentQuestion.options.map((opt) => {

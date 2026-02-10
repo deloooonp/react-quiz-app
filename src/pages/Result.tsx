@@ -32,12 +32,19 @@ export default function Result() {
     return total;
   }, 0);
 
+  const answered = Object.keys(answers).length;
+  const wrong = answered - score;
+  const unanswered = questions.length - answered;
+
   return (
     <div>
       <h1>Result</h1>
       <p>
         Score: {score} / {questions.length}
       </p>
+      <p>Correct: {score}</p>
+      <p>Wrong: {wrong}</p>
+      <p>Unanswered: {unanswered}</p>
       <button onClick={() => navigate("/")}>Back to Home</button>
       <br />
       <button
