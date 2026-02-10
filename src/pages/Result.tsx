@@ -122,7 +122,10 @@ export default function Result() {
 
           <div className="flex w-full flex-col sm:flex-row gap-4 h-28 md:h-auto">
             <Button
-              onClick={() => navigate("/")}
+              onClick={() => {
+                localStorage.removeItem("quiz-progress");
+                navigate("/quiz");
+              }}
               className="flex-1"
               leftIcon={<RefreshCcw className="size-5" />}
             >
@@ -130,10 +133,7 @@ export default function Result() {
             </Button>
             <Button
               variant="secondary"
-              onClick={() => {
-                localStorage.removeItem("username");
-                navigate("/");
-              }}
+              onClick={() => navigate("/")}
               className="flex-1"
               leftIcon={<Home className="size-5" />}
             >
