@@ -14,6 +14,6 @@
 
 @layer base {
   body {
-    @apply bg-background text-[#111418] font-display transition-colors duration-200;
+    @apply bg-background text-black font-display transition-colors duration-200;
   }
 }

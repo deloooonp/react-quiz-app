@@ -1,9 +1,12 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { Timer, CheckCircle2 } from "lucide-react";
 
 import { fetchQuiz } from "@/api/opentdb";
 import { transformQuestions } from "@/lib/transform";
 import type { QuizQuestion } from "@/types/quiz";
+import { Header, Button, LoadingState, ErrorState } from "@/components";
+import QuizProgress from "@/components/QuizProgress";
 
 export default function Quiz() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -21,79 +24,42 @@ export default function Quiz() {
   const TOTAL_TIME = 60;
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME);
 
-  // Load dari Local Storage
+  const finishQuiz = useCallback(() => {
+    localStorage.removeItem("quiz-progress");
+    navigate("/result", {
+      state: { questions, answers },
+    });
+  }, [navigate, questions, answers]);
+
+  // Load dari Local
   useEffect(() => {
     const saved = localStorage.getItem("quiz-progress");
-
-    if (!saved) return;
-
-    const parsed = JSON.parse(saved);
-
-    setQuestions(parsed.questions);
-    setAnswers(parsed.answers);
-    setCurrentIndex(parsed.currentIndex);
-    setTimeLeft(parsed.timeLeft);
-
-    hasResumed.current = true;
-
-    setLoading(false);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setQuestions(parsed.questions);
+      setAnswers(parsed.answers);
+      setCurrentIndex(parsed.currentIndex);
+      setTimeLeft(parsed.timeLeft);
+      hasResumed.current = true;
+      setLoading(false);
+    }
   }, []);
 
-  // Save ke Local Storage
+  // Fetch Quiz
   useEffect(() => {
-    if (!questions.length) return;
-    const data = {
-      questions,
-      answers,
-      currentIndex,
-      timeLeft,
-    };
-
-    localStorage.setItem("quiz-progress", JSON.stringify(data));
-  }, [questions, answers, currentIndex, timeLeft]);
-
-  // Quiz Timer
-  useEffect(() => {
-    if (!questions.length) return;
-    if (timeLeft <= 0) {
-      finishQuiz();
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timeLeft, questions.length]);
-
-  // Route Guard
-  useEffect(() => {
-    const username = localStorage.getItem("username");
-
-    if (!username) {
-      navigate("/");
-    }
-  }, [navigate]);
-
-  // Fetch Data Quiz
-  useEffect(() => {
-    // Mencegah error 429 (Too Many Requests)
-    if (hasFetched.current) return;
+    // Prevent 429 error
+    if (hasFetched.current || hasResumed.current) return;
     hasFetched.current = true;
-
-    // Kalo udah ada quiz di local storage, jangan fetch lagi
-    if (hasResumed.current) {
-      setLoading(false);
-      return;
-    }
 
     const loadQuiz = async () => {
       try {
         const data = await fetchQuiz(5);
+        if (data.response_code !== 0) {
+          throw new Error("Failed to fetch questions. Please try again.");
+        }
         setQuestions(transformQuestions(data.results));
       } catch (err) {
-        setError("Something went wrong");
+        setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
         setLoading(false);
       }
@@ -102,16 +68,39 @@ export default function Quiz() {
     loadQuiz();
   }, []);
 
-  function finishQuiz() {
-    localStorage.removeItem("quiz-progress");
-    navigate("/result", {
-      state: { questions, answers },
-    });
-  }
+  // Timer Quiz
+  useEffect(() => {
+    if (loading || !questions.length || timeLeft <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          finishQuiz();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [loading, questions.length, timeLeft, finishQuiz]);
+
+  // Simpen Quiz ke local
+  useEffect(() => {
+    if (!questions.length || loading) return;
+    const data = { questions, answers, currentIndex, timeLeft };
+    localStorage.setItem("quiz-progress", JSON.stringify(data));
+  }, [questions, answers, currentIndex, timeLeft, loading]);
+
+  // Route Guard
+  useEffect(() => {
+    const username = localStorage.getItem("username");
+    if (!username) navigate("/");
+  }, [navigate]);
 
   function handleSelect(optionId: string) {
     if (!currentQuestion) return;
-
     setAnswers((prev) => ({
       ...prev,
       [currentQuestion.id]: optionId,
@@ -126,48 +115,112 @@ export default function Quiz() {
     }
   }
 
-  if (loading || !questions.length) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  function handlePrevious() {
+    if (currentIndex > 0) {
+      setCurrentIndex((i) => i - 1);
+    }
+  }
+
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (error) {
+    return <ErrorState error={error} />;
+  }
+
+  if (!questions.length) return null;
 
   return (
-    <div className="p-4">
-      <h1>Quiz</h1>
-      <p>
-        Question {currentIndex + 1} of {questions.length}
-      </p>
+    <div className="min-h-screen bg-background font-display flex flex-col">
+      <Header />
 
-      <h2>{currentQuestion.question}</h2>
+      <main className="flex-1 flex flex-col items-center py-6 md:py-10 px-4 sm:px-6 w-full max-w-[800px] mx-auto gap-8">
+        <QuizProgress
+          currentIndex={currentIndex}
+          questions={questions}
+          timeLeft={timeLeft}
+        />
 
-      <p>Time left: {timeLeft}s</p>
+        <div className="flex flex-col gap-6 w-full">
+          <h1
+            className="tracking-tight text-2xl md:text-3xl font-bold leading-tight text-center md:text-left"
+            dangerouslySetInnerHTML={{ __html: currentQuestion.question }}
+          />
+        </div>
 
-      <ul>
-        {currentQuestion.options.map((opt) => {
-          const isSelected = answers[currentQuestion.id] === opt.id;
-          return (
-            <li key={opt.id}>
-              <button
-                onClick={() => handleSelect(opt.id)}
-                className={`rounded border px-4 py-2 my-2 ${
-                  isSelected
-                    ? "border-blue-500 bg-blue-100"
-                    : "border-gray-300 hover:bg-gray-100"
-                }`}
+        <div className="flex flex-col gap-3 w-full">
+          {currentQuestion.options.map((opt) => {
+            const isSelected = answers[currentQuestion.id] === opt.id;
+            return (
+              <label
+                key={opt.id}
+                className={`
+                  group relative flex items-center gap-4 rounded-xl border-2 border-solid p-5 cursor-pointer 
+                  transition-all duration-200
+                  ${
+                    isSelected
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-white hover:border-primary/50 hover:bg-primary/5"
+                  }
+                `}
               >
-                {opt.text}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+                <input
+                  type="radio"
+                  name="quiz-answer"
+                  className="peer opacity-0 absolute"
+                  checked={isSelected}
+                  onChange={() => handleSelect(opt.id)}
+                />
 
-      <button
-        onClick={handleNext}
-        disabled={!answers[currentQuestion.id]}
-        className="mt-6 rounded bg-blue-500 px-4 py-2 text-white
-      disabled:cursor-not-allowed disabled:bg-gray-300"
-      >
-        {currentIndex < questions.length - 1 ? "Next" : "Finish"}
-      </button>
+                <div
+                  className={`
+                  size-6 rounded-full border-2 flex items-center justify-center transition-all
+                  ${isSelected ? "border-primary" : "border-[#dbe0e6]"}
+                `}
+                >
+                  {isSelected && (
+                    <div className="size-3 rounded-full bg-primary" />
+                  )}
+                </div>
+
+                <div className="flex grow flex-col">
+                  <p
+                    className={`text-base md:text-lg font-medium leading-normal transition-colors ${isSelected ? "text-primary" : "text-[#111418] group-hover:text-primary"}`}
+                    dangerouslySetInnerHTML={{ __html: opt.text }}
+                  />
+                </div>
+
+                <div
+                  className={`absolute right-5 transition-opacity duration-200 ${isSelected ? "opacity-100" : "opacity-0"}`}
+                >
+                  <CheckCircle2 className="size-6 text-primary" />
+                </div>
+              </label>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col md:flex-row justify-between pt-6 border-t border-border mt-4 w-full gap-4">
+          <Button
+            variant="secondary"
+            fullWidth={false}
+            onClick={handlePrevious}
+            disabled={currentIndex === 0}
+          >
+            Previous
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!answers[currentQuestion.id]}
+            fullWidth={false}
+          >
+            {currentIndex < questions.length - 1
+              ? "Next Question"
+              : "See Results"}
+          </Button>
+        </div>
+      </main>
     </div>
   );
 }

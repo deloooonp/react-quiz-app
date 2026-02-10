@@ -21,12 +21,11 @@ export default function Login() {
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto">
         <div className="w-full max-w-md bg-white rounded-xl shadow-md border border-border overflow-hidden">
           <div className="p-8 sm:p-10 flex flex-col gap-6">
-            {/* Page Heading */}
             <div className="flex flex-col gap-2 text-center">
               <div className="mx-auto mb-2 size-12 flex items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Brain className="size-8" />
               </div>
-              <h1 className="text-black tracking-tight text-2xl font-bold leading-tight">
+              <h1 className="tracking-tight text-2xl font-bold leading-tight">
                 Welcome to QuizMaster
               </h1>
               <p className="text-secondary text-sm font-normal leading-relaxed">
@@ -36,18 +35,15 @@ export default function Login() {
               </p>
             </div>
 
-            {/* Input Field Area */}
             <div className="flex flex-col gap-4">
               <label className="flex flex-col w-full">
-                <span className="mb-2 text-sm font-medium text-black">
-                  Username
-                </span>
+                <span className="mb-2 text-sm font-medium">Username</span>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-secondary">
                     <User className="size-5" />
                   </div>
                   <input
-                    className="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lg text-black focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-white focus:border-primary h-12 placeholder:text-secondary pl-10 pr-4 text-base font-normal leading-normal transition-all"
+                    className="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lgfocus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-white focus:border-primary h-12 placeholder:text-secondary pl-10 pr-4 text-base font-normal leading-normal transition-all"
                     placeholder="Enter your username"
                     type="text"
                     value={username}
@@ -65,12 +61,6 @@ export default function Login() {
                 Start Quiz
               </Button>
             </div>
-          </div>
-
-          <div className="bg-accent px-8 py-4 border-t border-border text-center">
-            <p className="text-xs text-secondary">
-              By continuing, you agree to our Terms of Service.
-            </p>
           </div>
         </div>
       </main>
