@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Timer, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
 import { fetchQuiz } from "@/api/opentdb";
 import { transformQuestions } from "@/lib/transform";
@@ -135,7 +135,7 @@ export default function Quiz() {
     <div className="min-h-screen bg-background font-display flex flex-col">
       <Header />
 
-      <main className="flex-1 flex flex-col items-center py-6 md:py-10 px-4 sm:px-6 w-full max-w-[800px] mx-auto gap-8">
+      <main className="flex-1 flex flex-col items-center py-6 md:py-10 px-4 sm:px-6 w-full max-w-4xl mx-auto gap-8">
         <QuizProgress
           currentIndex={currentIndex}
           questions={questions}
