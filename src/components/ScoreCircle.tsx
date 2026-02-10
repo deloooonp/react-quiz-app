@@ -1,9 +1,6 @@
-interface ScoreCircleProps {
-  percentage: number;
-}
+import type { ScoreCircleProps } from "@/types";
 
 export default function ScoreCircle({ percentage }: ScoreCircleProps) {
-  // SVG dasharray constants (r=45, circumference ≈ 283)
   const circumference = 2 * Math.PI * 45;
   const offset = circumference - (percentage / 100) * circumference;
 

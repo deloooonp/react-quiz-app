@@ -1,14 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
-
-type ButtonVariant = "primary" | "secondary";
-
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode;
-  variant?: ButtonVariant;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
-  fullWidth?: boolean;
-}
+import type { ButtonProps, ButtonVariant } from "@/types";
 
 export function Button({
   children,

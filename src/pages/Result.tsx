@@ -1,22 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import {
-  Trophy,
-  CheckCircle2,
-  XCircle,
-  RefreshCcw,
-  Home,
-  HelpCircle,
-} from "lucide-react";
+import { Trophy, RefreshCcw, Home } from "lucide-react";
+import { calculateQuizStats, getStatCardConfigs } from "@/lib/stats";
 
-import type { QuizQuestion } from "@/types/quiz";
-import { Header, Button } from "@/components/ui";
+import type { ResultState } from "@/types";
+import { Header, Button, StatCard } from "@/components/ui";
 import ScoreCircle from "@/components/ScoreCircle";
-
-type ResultState = {
-  questions: QuizQuestion[];
-  answers: Record<string, string>;
-};
 
 export default function Result() {
   const navigate = useNavigate();
@@ -32,42 +21,8 @@ export default function Result() {
   if (!state) return null;
 
   const { questions, answers } = state;
-
-  const score = questions.reduce((total, q) => {
-    const userAnswer = answers[q.id];
-    if (userAnswer === q.correctOptionId) {
-      return total + 1;
-    }
-    return total;
-  }, 0);
-
-  const answered = Object.keys(answers).length;
-  const wrong = answered - score;
-  const unanswered = questions.length - answered;
-  const percentage = Math.round((score / questions.length) * 100);
-
-  const statCards = [
-    {
-      label: "Total Questions",
-      value: questions.length,
-      containerClass: "bg-background border-border",
-      valueClass: "text-black",
-    },
-    {
-      label: "Correct",
-      value: score,
-      icon: <CheckCircle2 className="size-4 text-green-600" />,
-      containerClass: "bg-green-50 border-green-200",
-      valueClass: "text-green-700",
-    },
-    {
-      label: "Incorrect",
-      value: wrong,
-      icon: <XCircle className="size-4 text-red-600" />,
-      containerClass: "bg-red-50 border-red-200",
-      valueClass: "text-red-700",
-    },
-  ];
+  const stats = calculateQuizStats(questions, answers);
+  const cardConfigs = getStatCardConfigs(stats);
 
   return (
     <div className="min-h-screen bg-background font-display flex flex-col overflow-hidden">
@@ -87,36 +42,21 @@ export default function Result() {
             </p>
           </div>
 
-          <ScoreCircle percentage={percentage} />
+          <ScoreCircle percentage={stats.percentage} />
 
           <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            {statCards.map((stat, i) => (
-              <div
-                key={i}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border ${stat.containerClass}`}
-              >
-                <p
-                  className={`text-2xl font-bold leading-tight mb-1 ${stat.valueClass}`}
-                >
-                  {stat.value}
-                </p>
-                <div className="flex items-center gap-1">
-                  {stat.icon}
-                  <p className={`${stat.valueClass} text-sm font-medium`}>
-                    {stat.label}
-                  </p>
-                </div>
-              </div>
+            {cardConfigs.map((config, i) => (
+              <StatCard key={i} {...config} />
             ))}
           </div>
 
-          {unanswered > 0 && (
-            <div className="w-full flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg mb-10">
-              <HelpCircle className="size-5 text-orange-600" />
-              <p className="text-sm font-medium text-orange-700">
-                You skipped {unanswered} question{unanswered > 1 ? "s" : ""}.
-                Try to answer all of them next time!
-              </p>
+          {stats.unanswered > 0 && (
+            <div className="w-full mb-10">
+              <StatCard
+                variant="warning"
+                label={`You skipped ${stats.unanswered} question${stats.unanswered > 1 ? "s" : ""}. Try to answer all of them next time!`}
+                value="Unanswered"
+              />
             </div>
           )}
 

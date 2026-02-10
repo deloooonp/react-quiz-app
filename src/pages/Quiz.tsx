@@ -4,7 +4,7 @@ import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { fetchQuiz } from "@/api/opentdb";
 import { transformQuestions } from "@/lib/transform";
-import type { QuizQuestion } from "@/types/quiz";
+import type { QuizQuestion } from "@/types";
 import { Header, Button, LoadingState, ErrorState } from "@/components";
 import QuizProgress from "@/components/QuizProgress";
 

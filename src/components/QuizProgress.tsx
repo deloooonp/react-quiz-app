@@ -1,12 +1,6 @@
 import { Timer } from "lucide-react";
 
-import type { QuizQuestion } from "@/types/quiz";
-
-interface QuizProgressProps {
-  currentIndex: number;
-  questions: QuizQuestion[];
-  timeLeft: number;
-}
+import type { QuizProgressProps } from "@/types";
 
 export default function QuizProgress({
   currentIndex,
