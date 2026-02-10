@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { User, Brain } from "lucide-react";
-import { Header, Button } from "@/components/ui";
+import { User, Brain, ArrowRight } from "lucide-react";
+import { Header, Button } from "@/components";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -15,7 +15,7 @@ export default function Login() {
   };
 
   return (
-    <div className="layout-container flex h-full w-full grow flex-col min-h-screen transition-colors duration-200">
+    <div className="flex h-full w-full grow flex-col min-h-screen transition-colors duration-200">
       <Header />
 
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto">
@@ -29,9 +29,7 @@ export default function Login() {
                 Welcome to QuizMaster
               </h1>
               <p className="text-secondary text-sm font-normal leading-relaxed">
-                Test your knowledge across various categories.
-                <br className="hidden sm:block" />
-                Enter your username to begin your journey.
+                Test your knowledge, Enter your username to begin.
               </p>
             </div>
 
@@ -43,7 +41,7 @@ export default function Login() {
                     <User className="size-5" />
                   </div>
                   <input
-                    className="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lgfocus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-white focus:border-primary h-12 placeholder:text-secondary pl-10 pr-4 text-base font-normal leading-normal transition-all"
+                    className="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lg focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-white focus:border-primary h-12 placeholder:text-secondary pl-10 pr-4 text-base font-normal leading-normal transition-all"
                     placeholder="Enter your username"
                     type="text"
                     value={username}
@@ -56,7 +54,7 @@ export default function Login() {
               <Button
                 onClick={handleStart}
                 disabled={!username.trim()}
-                showIcon
+                rightIcon={<ArrowRight className="size-5" />}
               >
                 Start Quiz
               </Button>

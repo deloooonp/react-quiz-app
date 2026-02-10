@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { fetchQuiz } from "@/api/opentdb";
 import { transformQuestions } from "@/lib/transform";
@@ -207,6 +207,7 @@ export default function Quiz() {
             fullWidth={false}
             onClick={handlePrevious}
             disabled={currentIndex === 0}
+            leftIcon={<ChevronLeft className="size-5" />}
           >
             Previous
           </Button>
@@ -214,6 +215,7 @@ export default function Quiz() {
             onClick={handleNext}
             disabled={!answers[currentQuestion.id]}
             fullWidth={false}
+            rightIcon={<ChevronRight className="size-5" />}
           >
             {currentIndex < questions.length - 1
               ? "Next Question"

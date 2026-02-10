@@ -1,21 +1,23 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
 
 type ButtonVariant = "primary" | "secondary";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: ButtonVariant;
-  showIcon?: boolean;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
   fullWidth?: boolean;
 }
 
 export function Button({
   children,
   variant = "primary",
-  showIcon = false,
+  leftIcon,
+  rightIcon,
   fullWidth = true,
   disabled,
+  className = "",
   ...props
 }: ButtonProps) {
   const baseStyles =
@@ -31,20 +33,18 @@ export function Button({
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles[variant]} ${widthStyle}`}
+      className={`${baseStyles} ${variantStyles[variant]} ${widthStyle} ${className}`}
       disabled={disabled}
       {...props}
     >
-      <span
-        className={`
-          truncate text-base font-bold leading-normal tracking-[0.015em]
-          ${showIcon ? "mr-2" : ""}
-        `}
-      >
+      {leftIcon && <div className="mr-2 flex items-center">{leftIcon}</div>}
+      <span className="truncate text-base font-bold leading-normal tracking-[0.015em]">
         {children}
       </span>
-      {showIcon && (
-        <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+      {rightIcon && (
+        <div className="ml-2 flex items-center transition-transform group-hover:translate-x-1">
+          {rightIcon}
+        </div>
       )}
     </button>
   );

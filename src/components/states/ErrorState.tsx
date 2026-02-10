@@ -1,3 +1,4 @@
+import { RefreshCcw } from "lucide-react";
 import { Button } from "../ui/Button";
 
 export function ErrorState({ error }: { error: string }) {
@@ -9,6 +10,7 @@ export function ErrorState({ error }: { error: string }) {
         onClick={() => window.location.reload()}
         fullWidth={false}
         className="px-8"
+        leftIcon={<RefreshCcw className="size-5" />}
       >
         Try Again
       </Button>
