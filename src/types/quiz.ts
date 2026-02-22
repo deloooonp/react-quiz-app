@@ -14,3 +14,11 @@ export type QuizProgress = {
   currentIndex: number;
   answers: Record<string, string>;
 };
+
+export interface QuizStats {
+  total: number;
+  correct: number;
+  incorrect: number;
+  unanswered: number;
+  percentage: number;
+}
